@@ -2,6 +2,8 @@ package main
 
 import (
 	"app/redisClient"
+	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
@@ -14,20 +16,31 @@ type PostParams struct {
 }
 
 func main() {
+
+	ctx := context.Background()
+
 	r := gin.Default()
 
-	r.GET("/", defaultPage)
 	r.GET("/get_key", getKey)
 	r.POST("/set_key", setKey)
 	r.POST("/del_key", delKey)
 
-	r.Run(":" + os.Getenv("PORT"))
-}
-
-func defaultPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.tmpl", gin.H{
-		"title": "Main website",
+	r.NoRoute(func(c *gin.Context) {
+		c.JSON(403, gin.H{
+			"error": "Forbidden",
+		})
 	})
+
+	//r.RunTLS(":"+os.Getenv("PORT"), os.Getenv("clientCertFile"), os.Getenv("clientKeyFile"))
+	r.Run(":" + os.Getenv("PORT"))
+
+	red := redisClient.GetConnection()
+	pong, err := red.Ping(ctx).Result()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(pong)
 }
 
 func getKey(c *gin.Context) {
@@ -66,7 +79,9 @@ func setKey(c *gin.Context) {
 			})
 			return
 		}
-		red.Set(c, key, value, time.Hour*24)
+		result := red.Set(c, key, value, time.Hour*24)
+
+		fmt.Println(result)
 	}
 
 	c.JSON(200, gin.H{

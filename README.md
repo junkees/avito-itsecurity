@@ -16,5 +16,5 @@
 ```
 
 ### TODO
-- [ ] Create Redis-authentication
-- [ ] TLS
+- [x] Create Redis-authentication
+- [x] TLS
