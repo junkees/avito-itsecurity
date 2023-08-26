@@ -9,7 +9,7 @@ services:
       - 8080:8080
     environment:
       - PORT=8080
-      - GIN_MODE=debug
+      - GIN_MODE=release
       - REDIS_PASSWORD=avito
       - caCertFile=/tls/ca.crt
       - clientCertFile=/tls/client.crt
